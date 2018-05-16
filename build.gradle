@@ -39,3 +39,7 @@ subprojects {
     }
 
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = gradle_version
+}
