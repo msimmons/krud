@@ -34,8 +34,8 @@ class Changeset<T: Entity>(val entity: T, val params: Map<String, Any?>) {
     /**
      * Enumerate the fields to use to apply changes to the entity
      */
-    fun updateFields(vararg castFields: KProperty<*>) : Changeset<T> {
-        fields.addAll(castFields)
+    fun updateFields(vararg fields: KProperty<*>) : Changeset<T> {
+        this.fields.addAll(fields)
         return this
     }
 

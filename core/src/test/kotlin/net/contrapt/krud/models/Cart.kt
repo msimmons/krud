@@ -7,10 +7,7 @@ class Cart() : BaseEntity("carts") {
     }
 
     val id: String? by id()
-    val name: String by field()
-    val email: String? by field()
-    val age: Int by field()
 
-    var horse: Horse by hasOne()
-
+    var items: List<CartItem> by hasMany()
+    var attributes: Map<String, Any> by embed()
 }

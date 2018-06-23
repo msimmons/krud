@@ -26,6 +26,7 @@ open class EntityField<V>(val data: MutableMap<String, Any?>) {
     }
 
     operator fun <T : Entity> setValue(entity: T, prop: KProperty<*>, value: V) {
+        // TODO null check?
         data[prop.name] = value
     }
 

@@ -5,13 +5,11 @@ import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.matchers.shouldThrow
 import io.kotlintest.matchers.shouldThrowAny
 import net.contrapt.krud.models.Cart
-import net.contrapt.krud.models.Horse
+import net.contrapt.krud.models.CartItem
 import org.h2.jdbcx.JdbcDataSource
-import org.junit.After
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.*
 
+@Ignore
 class RepoSpec {
 
     val repo = Repo(dataSource)
@@ -35,59 +33,44 @@ class RepoSpec {
     @Test
     fun findOneCart() {
         val cart = entity(
-                Cart::id to "3",
-                Cart::name to "hello",
-                Cart::age to 30,
-                Cart::email to "mark@contrapt.net"
+                Cart::id to "3"
         )
         repo.insert(cart)
         val saved = repo.findOne<Cart>("3")
         saved shouldNotBe null
         saved?.id shouldBe "3"
-        saved?.name shouldBe "hello"
-        saved?.age shouldBe 30
-        saved?.email shouldBe "mark@contrapt.net"
         println(saved?.data)
     }
 
     @Test
     fun findOneHorse() {
         val horse = entity(
-                Horse::id to "4",
-                Horse::color to "white"
+                CartItem::id to "4",
+                CartItem::sku to "white"
         )
         val cart = entity(
-                Cart::id to "3",
-                Cart::name to "hello",
-                Cart::age to 30,
-                Cart::email to "mark@contrapt.net",
-                Cart::horse to horse
+                Cart::id to "3"
         )
         repo.insert(horse)
         repo.insert(cart)
         println(repo.findOne<Cart>("3")?.data)
-        val saved = repo.run { findOne<Horse>("4") }
+        val saved = repo.run { findOne<CartItem>("4") }
         saved shouldNotBe null
         saved?.id shouldBe "4"
-        saved?.color shouldBe "white"
-        shouldThrow<UninitializedPropertyAccessException> {  saved?.carts }
+        saved?.sku shouldBe "white"
+        shouldThrow<UninitializedPropertyAccessException> {  saved?.cart }
         println(saved?.data)
     }
 
     @Test
     fun insertCart() {
         val cart = entity(
-                Cart::id to "3",
-                Cart::name to "Hello",
-                Cart::age to 30,
-                Cart::email to "mark@contrapt.net"
+                Cart::id to "3"
         )
         repo.run {
             insert(cart)
             findOne<Cart>(cart.id ?: "").apply {
                 this?.id shouldBe cart.id
-                this?.name shouldBe cart.name
-                this?.age shouldBe cart.age
                 println(this?.data)
             }
         }
@@ -96,17 +79,12 @@ class RepoSpec {
     @Test
     fun insertDupCart() {
         val cart = entity(
-                Cart::id to "3",
-                Cart::name to "Hello",
-                Cart::age to 30,
-                Cart::email to "mark@contrapt.net"
+                Cart::id to "3"
         )
         repo.transaction(rollback = true) {
             insert(cart)
             findOne<Cart>(cart.id ?: "").apply {
                 this?.id shouldBe cart.id
-                this?.name shouldBe cart.name
-                this?.age shouldBe cart.age
                 println(this?.data)
             }
             shouldThrowAny {
@@ -130,7 +108,7 @@ class RepoSpec {
 
     fun nested() {
         repo.transaction(rollback = true) {
-            findOne<Horse>("2")
+            findOne<CartItem>("2")
         }
 
     }
@@ -144,7 +122,7 @@ class RepoSpec {
         @JvmStatic
         @BeforeClass
         fun beforeClass() {
-            Schema.create("test", Cart::class, Horse::class)
+            Schema.create("test", Cart::class, CartItem::class)
             dataSource.connection.prepareStatement(dropCarts).execute()
             dataSource.connection.prepareStatement(dropHorses).execute()
             dataSource.connection.prepareStatement(createCarts).execute()
